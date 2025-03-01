@@ -54,7 +54,7 @@ export default function AnalysisPage() {
     { date: "2024-12-11", value: 521 },
     { date: "2024-12-12", value: 489 },
     { date: "2024-12-13", value: 534 },
-    { date: "2024-12-14", value: 498 }
+    { date: "2024-12-14", value: 498 },
   ];
 
   const networkData = {
@@ -95,7 +95,7 @@ export default function AnalysisPage() {
     { name: "Government Surveillance", value: 10, category: "technology" },
     { name: "Media Bias", value: 8, category: "other" },
     { name: "Celebrity Scandals", value: 7, category: "other" },
-    { name: "Education Policy", value: 5, category: "politics" }
+    { name: "Education Policy", value: 5, category: "politics" },
   ];
 
   const platformsData = [
@@ -104,7 +104,7 @@ export default function AnalysisPage() {
     { name: "Telegram", percentage: 15 },
     { name: "Instagram", percentage: 8 },
     { name: "TikTok", percentage: 5 },
-    { name: "Other", percentage: 2 }
+    { name: "Other", percentage: 2 },
   ];
 
   const topPosts = [
@@ -135,23 +135,18 @@ export default function AnalysisPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-6">
+    <main className="min-h-screen bg-black">
+      <div className="container mx-auto px-6 py-8">
         {/* Top Bar */}
-        <div className="flex items-center justify-between mb-6">
-          <Link href="/" className="flex items-center text-white hover:text-indigo-300 transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            <span className="font-medium">Back to Dashboard</span>
+        <div className="flex items-center justify-between mb-8">
+          <Link href="/" className="flex items-center text-white hover:text-gray-300 transition-colors">
+            <ArrowLeft className="h-6 w-6 mr-2" />
+            <span className="font-semibold text-lg">Back to Home</span>
           </Link>
-          <div className="flex items-center">
-            <button className="bg-slate-800/60 rounded-full p-2 text-slate-300 hover:text-white transition-colors">
-              <Share2 className="h-5 w-5" />
-            </button>
-          </div>
         </div>
-        
+
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-10">
           <form onSubmit={handleSearch} className="w-full">
             <div className="relative">
               <input
@@ -159,119 +154,154 @@ export default function AnalysisPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search URL, hashtag, or keyword..."
-                className="w-full py-3 px-5 bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-full text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 placeholder-slate-400"
+                className="w-full py-3 px-6 bg-black border border-gray-600 rounded-full text-white shadow-sm focus:outline-none placeholder-gray-500"
               />
-              <button type="submit" className="absolute right-2 top-1.5 p-1.5 bg-gradient-to-r from-indigo-600 to-blue-500 rounded-full hover:from-indigo-500 hover:to-blue-400 transition-all duration-300">
+              <button
+                type="submit"
+                className="absolute right-3 top-1.5 p-2 bg-black border border-gray-600 rounded-full hover:bg-gray-800 transition-all duration-300"
+              >
                 <Search className="h-5 w-5 text-white" />
               </button>
             </div>
           </form>
         </div>
-        
+
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 border-t-2 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
-            <p className="mt-4 text-slate-300">Analyzing data...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
+            <p className="mt-6 text-white text-lg">Analyzing data...</p>
           </div>
         ) : (
           <>
             {/* Query Summary */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-white">
-                Analysis: <span className="text-indigo-400">{searchQuery}</span>
+            <div className="mb-10">
+              <h1 className="text-4xl font-bold text-white">
+                Analysis: <span className="text-gray-300">{searchQuery}</span>
               </h1>
-              <p className="text-slate-400 mt-2">
+              <p className="text-gray-400 mt-2 text-lg">
                 Data from Dec 1, 2024 - Dec 14, 2024 • Showing results from multiple platforms
               </p>
             </div>
-            
+
             {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               <Card>
-                <Stat icon={<BarChart2 className="h-5 w-5" />} label="Total Mentions" value="5,432" change={{ value: 32, positive: true }} />
+                <Stat
+                  icon={<BarChart2 className="h-6 w-6" />}
+                  label="Total Mentions"
+                  value="5,432"
+                  change={{ value: 32, positive: true }}
+                />
               </Card>
               <Card>
-                <Stat icon={<Zap className="h-5 w-5" />} label="Engagement Rate" value="8.7%" change={{ value: 12, positive: true }} />
+                <Stat
+                  icon={<Zap className="h-6 w-6" />}
+                  label="Engagement Rate"
+                  value="8.7%"
+                  change={{ value: 12, positive: true }}
+                />
               </Card>
               <Card>
-                <Stat icon={<Users className="h-5 w-5" />} label="Reach" value="1.2M" change={{ value: 15, positive: true }} />
+                <Stat
+                  icon={<Users className="h-6 w-6" />}
+                  label="Reach"
+                  value="1.2M"
+                  change={{ value: 15, positive: true }}
+                />
               </Card>
               <Card>
-                <Stat icon={<TrendingUp className="h-5 w-5" />} label="Sentiment" value="Negative" change={{ value: 8, positive: false }} />
+                <Stat
+                  icon={<TrendingUp className="h-6 w-6" />}
+                  label="Sentiment"
+                  value="Negative"
+                  change={{ value: 8, positive: false }}
+                />
               </Card>
             </div>
-            
+
             {/* Time Series */}
-            <Card className="mb-8">
-              <h2 className="text-xl font-semibold text-white mb-4">Spread Over Time</h2>
+            <Card className="mb-10">
+              <h2 className="text-2xl font-semibold text-white mb-4">Spread Over Time</h2>
               <TimeSeriesChart data={timeSeriesData} />
             </Card>
-            
+
             {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
               <Card className="lg:col-span-2">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-white">Network Analysis</h2>
+                  <h2 className="text-2xl font-semibold text-white">Network Analysis</h2>
                   <div className="relative">
-                    <button className="text-sm flex items-center text-slate-300 bg-slate-700/50 px-3 py-1 rounded-full">
+                    <button className="flex items-center text-sm text-white bg-black border border-gray-600 px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
                       <span>Filter</span>
-                      <ChevronDown className="h-4 w-4 ml-1" />
+                      <ChevronDown className="h-5 w-5 ml-2" />
                     </button>
                   </div>
                 </div>
-                <NetworkGraph data={networkData} />
-                <div className="mt-3 text-sm text-slate-400">
-                  <p>Network visualization showing the propagation of content from sources through amplifiers to consumer groups.</p>
+                {/* Wrap the NetworkGraph in a fixed-height container with overflow-hidden */}
+                <div className="overflow-hidden h-[300px]">
+                  <NetworkGraph data={networkData} />
+                </div>
+                <div className="mt-4 text-base text-gray-400">
+                  <p>
+                    Network visualization showing the propagation of content from sources through amplifiers to consumer groups.
+                  </p>
                 </div>
               </Card>
-              
+
               <Card>
-                <h2 className="text-xl font-semibold text-white mb-4">Platform Distribution</h2>
-                <div className="space-y-4">
+                <h2 className="text-2xl font-semibold text-white mb-4">Platform Distribution</h2>
+                <div className="space-y-5">
                   {platformsData.map((platform, index) => (
                     <div key={index}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-300">{platform.name}</span>
-                        <span className="text-slate-400">{platform.percentage}%</span>
+                      <div className="flex justify-between text-base mb-1">
+                        <span className="text-white">{platform.name}</span>
+                        <span className="text-gray-400">{platform.percentage}%</span>
                       </div>
-                      <div className="w-full bg-slate-700/50 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 h-2 rounded-full" style={{ width: `${platform.percentage}%` }} />
+                      <div className="w-full bg-gray-600 rounded-full h-2">
+                        <div
+                          className="bg-gray-400 h-2 rounded-full"
+                          style={{ width: `${platform.percentage}%` }}
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
               </Card>
             </div>
-            
+
             {/* Topic Clusters */}
-            <Card className="mb-8">
-              <h2 className="text-xl font-semibold text-white mb-4">Topic Clusters</h2>
+            <Card className="mb-10">
+              <h2 className="text-2xl font-semibold text-white mb-4">Topic Clusters</h2>
               <TopicClusters data={topicClustersData} />
-              <div className="mt-3 text-sm text-slate-400">
-                <p>Visualization of related topics and narratives. Larger bubbles indicate more prevalent topics.</p>
+              <div className="mt-4 text-base text-gray-400">
+                <p>
+                  Visualization of related topics and narratives. Larger bubbles indicate more prevalent topics.
+                </p>
               </div>
             </Card>
-            
+
             {/* Top Posts */}
-            <Card>
+            <Card className="mt-8">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-white">Top Posts</h2>
+                <h2 className="text-2xl font-semibold text-white">Top Posts</h2>
                 <div className="relative">
-                  <button className="text-sm flex items-center text-slate-300 bg-slate-700/50 px-3 py-1 rounded-full">
+                  <button className="flex items-center text-sm text-white bg-black border border-gray-600 px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
                     <span>Sort by Engagement</span>
-                    <ChevronDown className="h-4 w-4 ml-1" />
+                    <ChevronDown className="h-5 w-5 ml-2" />
                   </button>
                 </div>
               </div>
-              <TopPosts posts={topPosts} />
+              <div className="mt-4 space-y-4">
+                <TopPosts posts={topPosts} />
+              </div>
             </Card>
           </>
         )}
       </div>
-      
+
       {/* Footer */}
-      <footer className="py-6 text-center text-slate-400 text-sm">
-        <p>© 2025 VERITY · AI-Powered Misinformation Analytics</p>
+      <footer className="py-4 text-center text-gray-600 text-xs">
+        <p>© 2025 TruthSeekr.ai · All Rights Reserved.</p>
       </footer>
     </main>
   );
