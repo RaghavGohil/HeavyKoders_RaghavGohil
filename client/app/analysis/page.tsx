@@ -1,21 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, ArrowLeft, Share2, BarChart2, Zap, Users, TrendingUp, ChevronDown } from "lucide-react";
+import {
+  Search,
+  ArrowLeft,
+  BarChart2,
+  Zap,
+  Users,
+  TrendingUp,
+  ChevronDown,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Card from ".//Card";
+import Summary from "./Summary";
+import ContentMetrics from "./ContentMetrics";
+import RelatedLinksWordCloud from "./RelatedLinksWordCloud";
+import TopUsersAndHashtags from "./TopUsersAndHashtags";
+import CorrectFacts from "./CorrectFacts";
+import Card from "./Card";
 import Stat from "./Stat";
 import TimeSeriesChart from "./TimeSeriesChart";
 import NetworkGraph from "./NetworkGraph";
 import TopicClusters from "./TopicClusters";
 import TopPosts from "./TopPosts";
+import LazyLoad from "./LazyLoad";
 
 export default function AnalysisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [mode, setMode] = useState("reddit");
 
   // Retrieve query from URL
   useEffect(() => {
@@ -67,7 +82,7 @@ export default function AnalysisPage() {
       { id: "cons1", name: "UserGroup1", type: "consumer", size: 8, reach: 12000 },
       { id: "cons2", name: "UserGroup2", type: "consumer", size: 9, reach: 15000 },
       { id: "cons3", name: "UserGroup3", type: "consumer", size: 7, reach: 8000 },
-      { id: "cons4", name: "UserGroup4", type: "consumer", size: 6, reach: 5000 }
+      { id: "cons4", name: "UserGroup4", type: "consumer", size: 6, reach: 5000 },
     ],
     links: [
       { source: "source1", target: "amp1", value: 5 },
@@ -79,8 +94,8 @@ export default function AnalysisPage() {
       { source: "amp2", target: "cons2", value: 2 },
       { source: "amp2", target: "cons3", value: 2 },
       { source: "amp3", target: "cons3", value: 2 },
-      { source: "amp3", target: "cons4", value: 2 }
-    ]
+      { source: "amp3", target: "cons4", value: 2 },
+    ],
   };
 
   const topicClustersData = [
@@ -112,26 +127,59 @@ export default function AnalysisPage() {
       id: 1,
       platform: "Twitter/X",
       username: "@influential_account",
-      content: "BREAKING: New evidence reveals shocking truth about climate change data manipulation! #ClimateHoax",
+      content:
+        "BREAKING: New evidence reveals shocking truth about climate change data manipulation! #ClimateHoax",
       engagement: { likes: 3456, shares: 1289, comments: 892 },
-      timestamp: "2024-12-14T15:23:45Z"
+      timestamp: "2024-12-14T15:23:45Z",
     },
     {
       id: 2,
       platform: "Facebook",
       username: "Alternative News Network",
-      content: "The media won't tell you this, but researchers found that these common foods are actually dangerous for your health...",
+      content:
+        "The media won't tell you this, but researchers found that these common foods are actually dangerous for your health...",
       engagement: { likes: 2851, shares: 973, comments: 645 },
-      timestamp: "2024-12-13T12:34:21Z"
+      timestamp: "2024-12-13T12:34:21Z",
     },
     {
       id: 3,
       platform: "Telegram",
       username: "Truth Channel",
-      content: "They're hiding this from you: Secret documents expose government plan to control population through new regulations.",
+      content:
+        "They're hiding this from you: Secret documents expose government plan to control population through new regulations.",
       engagement: { likes: 1764, shares: 842, comments: 397 },
-      timestamp: "2024-12-14T09:45:12Z"
-    }
+      timestamp: "2024-12-14T09:45:12Z",
+    },
+  ];
+
+  // Props for child components provided from this page:
+  const summaryTitle = "Key Findings & Summary";
+  const relatedLinks = [
+    { text: "FactCheck.org", url: "https://www.factcheck.org" },
+    { text: "Snopes", url: "https://www.snopes.com" },
+    { text: "PolitiFact", url: "https://www.politifact.com" },
+  ];
+  const wordCloudData = [
+    { text: "data", frequency: 10 },
+    { text: "analytics", frequency: 15 },
+    { text: "truth", frequency: 20 },
+    { text: "AI", frequency: 25 },
+    { text: "misinformation", frequency: 8 },
+    { text: "social", frequency: 12 },
+    { text: "media", frequency: 18 },
+    { text: "facts", frequency: 9 },
+    { text: "report", frequency: 7 },
+    { text: "analysis", frequency: 17 },
+    { text: "monitor", frequency: 11 },
+    { text: "verify", frequency: 14 },
+  ];
+  const topUsers = [
+    { username: "@user1", mentions: 1234 },
+    { username: "@user2", mentions: 987 },
+  ];
+  const topHashtags = [
+    { hashtag: "example", frequency: 56 },
+    { hashtag: "demo", frequency: 42 },
   ];
 
   return (
@@ -139,7 +187,10 @@ export default function AnalysisPage() {
       <div className="container mx-auto px-6 py-8">
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="flex items-center text-white hover:text-gray-300 transition-colors">
+          <Link
+            href="/"
+            className="flex items-center text-white hover:text-gray-300 transition-colors"
+          >
             <ArrowLeft className="h-6 w-6 mr-2" />
             <span className="font-semibold text-lg">Back to Home</span>
           </Link>
@@ -166,6 +217,22 @@ export default function AnalysisPage() {
           </form>
         </div>
 
+        {/* Platform Dropdown */}
+        <div className="flex items-center mb-10">
+          <label htmlFor="platform" className="text-white mr-2">
+            Select Platform:
+          </label>
+          <select
+            id="platform"
+            className="bg-black border border-gray-600 text-white rounded-full px-3 py-2"
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
+          >
+            <option value="reddit">Reddit</option>
+            <option value="twitter">Twitter</option>
+          </select>
+        </div>
+
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
@@ -174,132 +241,162 @@ export default function AnalysisPage() {
         ) : (
           <>
             {/* Query Summary */}
-            <div className="mb-10">
-              <h1 className="text-4xl font-bold text-white">
-                Analysis: <span className="text-gray-300">{searchQuery}</span>
-              </h1>
-              <p className="text-gray-400 mt-2 text-lg">
-                Data from Dec 1, 2024 - Dec 14, 2024 • Showing results from multiple platforms
-              </p>
-            </div>
+            <LazyLoad>
+              <div className="mb-10">
+                <h1 className="text-4xl font-bold text-white">
+                  Analysis: <span className="text-gray-300">{searchQuery}</span>
+                </h1>
+                <p className="text-gray-400 mt-2 text-lg">
+                  Data from Dec 1, 2024 - Dec 14, 2024 • Showing results from multiple platforms
+                </p>
+              </div>
+            </LazyLoad>
+
+            {/* Summary, Related Links/Word Cloud, Content Metrics, Top Users/Hashtags */}
+            <LazyLoad>
+                <Card className="mb-10">
+                  <Summary title={summaryTitle} />
+                </Card>
+            </LazyLoad>
+
+            <LazyLoad>
+                <Card className="mb-10">
+                  <RelatedLinksWordCloud
+                    relatedLinks={relatedLinks}
+                    wordCloudData={wordCloudData}
+                  />
+                </Card>
+            </LazyLoad>
+            
+            {/* Topic Clusters */}
+            <LazyLoad>
+              <Card className="mb-10">
+                <h2 className="text-2xl font-semibold text-white mb-4">
+                  Related Topic Clusters
+                </h2>
+                <TopicClusters data={topicClustersData} />
+                <div className="mt-4 text-base text-gray-400">
+                  <p>
+                    Visualization of related topics and narratives. Larger bubbles indicate more prevalent topics.
+                  </p>
+                </div>
+              </Card>
+            </LazyLoad>
+
+            <LazyLoad>
+                <Card className="mb-10">
+                  <TopUsersAndHashtags
+                    topUsers={topUsers}
+                    topHashtags={topHashtags}
+                  />
+                </Card>
+            </LazyLoad>
 
             {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-              <Card>
-                <Stat
-                  icon={<BarChart2 className="h-6 w-6" />}
-                  label="Total Mentions"
-                  value="5,432"
-                  change={{ value: 32, positive: true }}
-                />
-              </Card>
-              <Card>
-                <Stat
-                  icon={<Zap className="h-6 w-6" />}
-                  label="Engagement Rate"
-                  value="8.7%"
-                  change={{ value: 12, positive: true }}
-                />
-              </Card>
-              <Card>
-                <Stat
-                  icon={<Users className="h-6 w-6" />}
-                  label="Reach"
-                  value="1.2M"
-                  change={{ value: 15, positive: true }}
-                />
-              </Card>
-              <Card>
-                <Stat
-                  icon={<TrendingUp className="h-6 w-6" />}
-                  label="Sentiment"
-                  value="Negative"
-                  change={{ value: 8, positive: false }}
-                />
-              </Card>
-            </div>
+            <LazyLoad>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <Card>
+                  <Stat
+                    icon={<BarChart2 className="h-6 w-6" />}
+                    label="Total Mentions"
+                    value="5,432"
+                    change={{ value: 32, positive: true }}
+                  />
+                </Card>
+                <Card>
+                  <Stat
+                    icon={<Zap className="h-6 w-6" />}
+                    label="Engagement Rate"
+                    value="8.7%"
+                    change={{ value: 12, positive: true }}
+                  />
+                </Card>
+                <Card>
+                  <Stat
+                    icon={<Users className="h-6 w-6" />}
+                    label="Reach"
+                    value="1.2M"
+                    change={{ value: 15, positive: true }}
+                  />
+                </Card>
+                <Card>
+                  <Stat
+                    icon={<TrendingUp className="h-6 w-6" />}
+                    label="Sentiment"
+                    value="Negative"
+                    change={{ value: 8, positive: false }}
+                  />
+                </Card>
+              </div>
+            </LazyLoad>
 
             {/* Time Series */}
-            <Card className="mb-10">
-              <h2 className="text-2xl font-semibold text-white mb-4">Spread Over Time</h2>
-              <TimeSeriesChart data={timeSeriesData} />
-            </Card>
+            <LazyLoad>
+              <Card className="mb-10">
+                <h2 className="text-2xl font-semibold text-white mb-4">
+                  Similar Posts Spread Over Time
+                </h2>
+                <TimeSeriesChart data={timeSeriesData} />
+              </Card>
+            </LazyLoad>
 
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-              <Card className="lg:col-span-2">
+            {/* Network Analysis */}
+            <LazyLoad>
+              <Card className="mb-10">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-semibold text-white">Network Analysis</h2>
-                  <div className="relative">
-                    <button className="flex items-center text-sm text-white bg-black border border-gray-600 px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
-                      <span>Filter</span>
-                      <ChevronDown className="h-5 w-5 ml-2" />
-                    </button>
-                  </div>
+                  <h2 className="text-2xl font-semibold text-white">
+                    Bot Like Activity
+                  </h2>
                 </div>
-                {/* Wrap the NetworkGraph in a fixed-height container with overflow-hidden */}
-                <div className="overflow-hidden h-[300px]">
+                <div className="overflow-hidden w-full h-[300px]">
                   <NetworkGraph data={networkData} />
                 </div>
                 <div className="mt-4 text-base text-gray-400">
                   <p>
-                    Network visualization showing the propagation of content from sources through amplifiers to consumer groups.
+                    The graph below shows accounts that shared this URL and were observed to co-share content within very short time intervals at least twice.
                   </p>
                 </div>
               </Card>
+            </LazyLoad>
 
-              <Card>
-                <h2 className="text-2xl font-semibold text-white mb-4">Platform Distribution</h2>
-                <div className="space-y-5">
-                  {platformsData.map((platform, index) => (
-                    <div key={index}>
-                      <div className="flex justify-between text-base mb-1">
-                        <span className="text-white">{platform.name}</span>
-                        <span className="text-gray-400">{platform.percentage}%</span>
-                      </div>
-                      <div className="w-full bg-gray-600 rounded-full h-2">
-                        <div
-                          className="bg-gray-400 h-2 rounded-full"
-                          style={{ width: `${platform.percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+            <LazyLoad>
+                <Card className="mb-10">
+                  <ContentMetrics
+                    sourceScore={75}
+                    languageScore={85}
+                    coordinationScore={65}
+                    botActivityScore={40}
+                    isPropagandistic={true}
+                  />
+                </Card>
+            </LazyLoad>
 
-            {/* Topic Clusters */}
-            <Card className="mb-10">
-              <h2 className="text-2xl font-semibold text-white mb-4">Topic Clusters</h2>
-              <TopicClusters data={topicClustersData} />
-              <div className="mt-4 text-base text-gray-400">
-                <p>
-                  Visualization of related topics and narratives. Larger bubbles indicate more prevalent topics.
-                </p>
+            {/* Correct Facts */}
+            <LazyLoad>
+              <div className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CorrectFacts title={"Facts Gathered From Platform"} />
+                </Card>
+                <Card>
+                  <CorrectFacts title={"Facts Gathered From Relevant Sources"} />
+                </Card>
               </div>
-            </Card>
+            </LazyLoad>
 
             {/* Top Posts */}
-            <Card className="mt-8">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-white">Top Posts</h2>
-                <div className="relative">
-                  <button className="flex items-center text-sm text-white bg-black border border-gray-600 px-4 py-2 rounded-full hover:bg-gray-800 transition-colors">
-                    <span>Sort by Engagement</span>
-                    <ChevronDown className="h-5 w-5 ml-2" />
-                  </button>
+            <LazyLoad>
+              <Card className="mt-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-semibold text-white">Relevant Factual Posts</h2>
                 </div>
-              </div>
-              <div className="mt-4 space-y-4">
-                <TopPosts posts={topPosts} />
-              </div>
-            </Card>
+                <div className="mt-4 space-y-4">
+                  <TopPosts posts={topPosts} />
+                </div>
+              </Card>
+            </LazyLoad>
           </>
         )}
       </div>
-
-      {/* Footer */}
       <footer className="py-4 text-center text-gray-600 text-xs">
         <p>© 2025 TruthSeekr.ai · All Rights Reserved.</p>
       </footer>
