@@ -1,3 +1,4 @@
+import os
 import logging
 import re
 from collections import Counter
@@ -8,12 +9,26 @@ import praw
 from gradio_client import Client
 from textblob import TextBlob  # for sentiment analysis
 
+import requests
+import openai
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+
+# Set OpenAI API Key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+if not openai.api_key:
+    logger.error("OPENAI_API_KEY is not set in the environment variables.")
+    raise ValueError("Please set the OPENAI_API_KEY environment variable in your .env file.")
 
 # Initialize Reddit via PRAW
 try:
@@ -27,7 +42,6 @@ try:
 except Exception as e:
     logger.error("Error initializing Reddit instance: %s", e)
     raise
-
 
 # Initialize a global summarizer client.
 summarizer_client = Client("RawadAlghamdi/text-summarizer")
@@ -66,6 +80,44 @@ def get_search_query(original_query: str) -> str:
             return clean_reddit_url(original_query)
     return original_query
 
+def fetch_article(url):
+    """
+    Fetches webpage content and extracts visible text.
+    """
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Remove script and style elements
+    for tag in soup(["script", "style"]):
+        tag.decompose()
+
+    # Get text and clean extra whitespace
+    text = soup.get_text()
+    lines = (line.strip() for line in text.splitlines())
+    text = "\n".join(line for line in lines if line)
+    return text
+
+def summarize_text(text):
+    """
+    Uses the OpenAI GPT-4 API to summarize the provided text with a limit of 150 words.
+    """
+    prompt = f"Summarize the following article in 150 words or fewer:\n\n{text}\n\nSummary (Max 150 words):"
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=200  # Allows buffer, but we'll ensure a strict word limit manually
+    )
+
+    summary = response.choices[0].message.content.strip()
+
+    # Ensure the summary does not exceed 150 words
+    words = summary.split()
+    if len(words) > 150:
+        summary = " ".join(words[:150]) + "..."
+
+    return summary
+
 # Endpoint for fetching a summary from a given URL.
 @app.route("/fetch_summary", methods=["POST"])
 def fetch_summary_route():
@@ -84,8 +136,11 @@ def fetch_summary_route():
             # Summarize the Reddit post text.
             result = summarizer_client.predict(text=content, api_name="/predict")
         else:
-            # For non-Reddit URLs, let the summarizer scrape and summarize.
-            result = summarizer_client.predict(url=query, api_name="/scrape_and_summarize")
+            # Fetch article content
+            article_text = fetch_article(query)
+            
+            # Summarize using OpenAI GPT-4
+            result = summarize_text(article_text)
         
         logger.info("Summary received for query: %s", query)
         return jsonify({"url": query, "summary": result})
@@ -241,7 +296,6 @@ def top_metrics():
     except Exception as e:
         logger.error("Error in /top_metrics: %s", e)
         abort(500, description=str(e))
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
