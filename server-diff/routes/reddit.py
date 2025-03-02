@@ -8,12 +8,10 @@ import praw
 from gradio_client import Client
 from textblob import TextBlob  # for sentiment analysis
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 # Initialize Reddit via PRAW
 try:
@@ -241,7 +239,3 @@ def top_metrics():
     except Exception as e:
         logger.error("Error in /top_metrics: %s", e)
         abort(500, description=str(e))
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=8000)

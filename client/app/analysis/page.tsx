@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ChevronDown,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown"
 import { PostMetrics } from "./PostMetrics";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -182,6 +183,15 @@ export default function AnalysisPage() {
     { hashtag: "example", frequency: 56 },
     { hashtag: "demo", frequency: 42 },
   ];
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    // Fetch the markdown file from the public folder.
+    fetch("/news_analysis_report.md")
+      .then((res) => res.text())
+      .then((text) => setContent(text))
+      .catch((err) => console.error("Error fetching markdown file:", err));
+  }, []);
 
   return (
     <main className="min-h-screen bg-black">
@@ -252,8 +262,7 @@ export default function AnalysisPage() {
                   />
                 </Card>
             </LazyLoad>
-            
-            {/* Topic Clusters */}
+
             <LazyLoad>
               <Card className="mb-10">
                 <h2 className="text-2xl font-semibold text-white mb-4">
@@ -345,6 +354,12 @@ export default function AnalysisPage() {
                   <TopPosts posts={topPosts} />
                 </div>
               </Card>
+            </LazyLoad>
+
+            <LazyLoad>
+              <div className="markdown-container markdown mt-10 border border-gray-700 rounded-xl p-4 mb-10 text-gray-400 mt-2 text-lg">
+                <ReactMarkdown>{content}</ReactMarkdown>
+              </div>
             </LazyLoad>
           </>
         )}
