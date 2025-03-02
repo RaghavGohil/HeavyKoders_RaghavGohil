@@ -7,6 +7,99 @@ from models.response_models import (
     DashboardData, TrendingTopic, WordFrequency
 )
 
+from fastapi import FastAPI, Query, HTTPException
+from fastapi.responses import HTMLResponse
+from urllib.parse import urlparse
+import hashlib
+import os
+import json
+from dotenv import load_dotenv
+
+
+
+def generate_summary():
+    """
+    Extract the domain from the given URL, compute deterministic manipulation scores,
+    and display them in an HTML summary.
+    """
+    # Extract domain from the URL
+    parsed = urlparse(url)
+    domain = parsed.netloc
+    if not domain:
+        raise HTTPException(status_code=400, detail="Could not extract domain from URL")
+    
+    scores = get_domain_scores(domain)
+    
+    # Build an HTML response using the computed scores
+    source_score = scores.get("source", 0)
+    language_score = scores.get("language", 0)
+    coordination_score = scores.get("coordination", 0)
+    bot_score = scores.get("bot_like", 0)
+    average_score = scores.get("average", 0)
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Domain Summary for {domain}</title>
+        <style>
+            .score-bar {{
+                width: 300px;
+                background-color: #eee;
+                border-radius: 5px;
+                margin: 4px 0;
+            }}
+            .score-bar-fill {{
+                height: 12px;
+                background-color: orange;
+                border-radius: 5px;
+            }}
+            .score-label {{
+                width: 120px;
+                display: inline-block;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Summary for domain: {domain}</h1>
+        <p>This deterministic analysis assigns scores based on a fixed algorithm, ensuring consistent results for the same domain.</p>
+        <div style="display: flex; margin-top: 20px;">
+            <div>
+                <h2>Scores</h2>
+                <div>
+                    <span class="score-label">Source:</span> {source_score}/100
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: {source_score}%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <span class="score-label">Language:</span> {language_score}/100
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: {language_score}%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <span class="score-label">Coordination:</span> {coordination_score}/100
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: {coordination_score}%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <span class="score-label">Bot-like Activity:</span> {bot_score}/100
+                    <div class="score-bar">
+                        <div class="score-bar-fill" style="width: {bot_score}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Manipulation Score</h2>
+        <p style="font-size: 24px; color: orange; font-weight: bold;">Ø = {average_score}/100</p>
+        <p><a href="/">Back to Home</a></p>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
 def generate_article_source():
     return ArticleSource(
         source_name=f"{random.choice(['Daily', 'Global', 'Truth'])} News",
@@ -204,6 +297,7 @@ def generate_score_metric(source_score, language_score, coordination_score, bot_
     )
 
 def generate_dashboard_data(article_id: str):
+    summary = generate_summary()
     source = generate_source_reliability()
     language = generate_language_score()
     coordination = generate_coordination_score()

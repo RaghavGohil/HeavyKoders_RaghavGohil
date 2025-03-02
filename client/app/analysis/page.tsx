@@ -10,6 +10,7 @@ import {
   TrendingUp,
   ChevronDown,
 } from "lucide-react";
+import { PostMetrics } from "./PostMetrics";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Summary from "./Summary";
@@ -217,22 +218,6 @@ export default function AnalysisPage() {
           </form>
         </div>
 
-        {/* Platform Dropdown */}
-        <div className="flex items-center mb-10">
-          <label htmlFor="platform" className="text-white mr-2">
-            Select Platform:
-          </label>
-          <select
-            id="platform"
-            className="bg-black border border-gray-600 text-white rounded-full px-3 py-2"
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-          >
-            <option value="reddit">Reddit</option>
-            <option value="twitter">Twitter</option>
-          </select>
-        </div>
-
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
@@ -243,11 +228,11 @@ export default function AnalysisPage() {
             {/* Query Summary */}
             <LazyLoad>
               <div className="mb-10">
-                <h1 className="text-4xl font-bold text-white">
+                <h1 className="text-xl font-bold text-white">
                   Analysis: <span className="text-gray-300">{searchQuery}</span>
                 </h1>
                 <p className="text-gray-400 mt-2 text-lg">
-                  Data from Dec 1, 2024 - Dec 14, 2024 • Showing results from multiple platforms
+                  Showing results from webscraping and agentic ai generation.
                 </p>
               </div>
             </LazyLoad>
@@ -255,14 +240,14 @@ export default function AnalysisPage() {
             {/* Summary, Related Links/Word Cloud, Content Metrics, Top Users/Hashtags */}
             <LazyLoad>
                 <Card className="mb-10">
-                  <Summary title={summaryTitle} />
+                  <Summary query={searchQuery}/>
                 </Card>
             </LazyLoad>
 
             <LazyLoad>
                 <Card className="mb-10">
                   <RelatedLinksWordCloud
-                    relatedLinks={relatedLinks}
+                    query={searchQuery}
                     wordCloudData={wordCloudData}
                   />
                 </Card>
@@ -294,40 +279,7 @@ export default function AnalysisPage() {
 
             {/* Top Stats */}
             <LazyLoad>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <Card>
-                  <Stat
-                    icon={<BarChart2 className="h-6 w-6" />}
-                    label="Total Mentions"
-                    value="5,432"
-                    change={{ value: 32, positive: true }}
-                  />
-                </Card>
-                <Card>
-                  <Stat
-                    icon={<Zap className="h-6 w-6" />}
-                    label="Engagement Rate"
-                    value="8.7%"
-                    change={{ value: 12, positive: true }}
-                  />
-                </Card>
-                <Card>
-                  <Stat
-                    icon={<Users className="h-6 w-6" />}
-                    label="Reach"
-                    value="1.2M"
-                    change={{ value: 15, positive: true }}
-                  />
-                </Card>
-                <Card>
-                  <Stat
-                    icon={<TrendingUp className="h-6 w-6" />}
-                    label="Sentiment"
-                    value="Negative"
-                    change={{ value: 8, positive: false }}
-                  />
-                </Card>
-              </div>
+              <PostMetrics postUrl={searchQuery}/>
             </LazyLoad>
 
             {/* Time Series */}
@@ -401,5 +353,5 @@ export default function AnalysisPage() {
         <p>© 2025 TruthSeekr.ai · All Rights Reserved.</p>
       </footer>
     </main>
-  );
+  ); 
 }
